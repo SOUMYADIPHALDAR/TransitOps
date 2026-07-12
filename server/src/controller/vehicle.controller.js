@@ -55,44 +55,6 @@ const newVehicle = asyncHandler(async (req, res) => {
     );
 });
 
-const editVehicle = asyncHandler(async (req, res) => {
-  const { name, maxLoadCapacityKg, odometer } = req.body;
-  const { id } = req.params;
-  if (!name || !maxLoadCapacityKg || !odometer) {
-    throw new apiError(404, "All feilds are required");
-  }
-
-  const vehicle = await prisma.vehicle.findUnique({
-    where: {
-      id,
-    },
-  });
-
-  if (!vehicle) {
-    throw new apiError(404, "Vehicle did not found");
-  }
-
-  await prisma.vehicle.update({
-    where: {
-      id,
-    },
-    data: {
-      name,
-      odometer,
-      maxLoadCapacityKg,
-    },
-  });
-
-  return res
-    .status(200)
-    .json(
-      new apiResponse(
-        200,
-        null,
-        "Vehicle's info has been updated successfully",
-      ),
-    );
-});
 
 const getVehicle = asyncHandler(async (req, res) => {
   const { id } = req.params;
