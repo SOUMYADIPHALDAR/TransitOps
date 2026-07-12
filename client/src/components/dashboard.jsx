@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 
 const fleet = [
   { id: "VH-101", type: "Bus", status: "Active", region: "North" },
@@ -63,10 +64,15 @@ const Dashboard = () => {
             <h1 className="text-3xl font-bold tracking-tight text-slate-900">Dashboard</h1>
             <p className="mt-1 text-sm text-slate-500">Monitor your fleet performance at a glance.</p>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm">
-            <span className="mr-2 inline-block h-2 w-2 rounded-full bg-emerald-500" />
-            <span className="font-medium text-slate-700">Live fleet status</span>
-            <span className="ml-2 text-slate-400">Updated just now</span>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm">
+              <span className="mr-2 inline-block h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="font-medium text-slate-700">Live fleet status</span>
+              <span className="ml-2 text-slate-400">Updated just now</span>
+            </div>
+            <Link to="/vehicle-registry" className="rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+              Register vehicle
+            </Link>
           </div>
         </header>
 
