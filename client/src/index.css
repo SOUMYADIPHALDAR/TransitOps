@@ -9,3 +9,56 @@ html, body, #root {
 body {
   min-width: 320px;
 }
+
+html.dark body {
+  background: #020617;
+}
+
+html.dark .bg-slate-50,
+html.dark .bg-gray-100 {
+  background-color: #020617;
+}
+
+html.dark .bg-white,
+html.dark .bg-slate-100 {
+  background-color: #0f172a;
+}
+
+html.dark .bg-slate-900\/70 {
+  background-color: rgb(15 23 42 / 0.9);
+}
+
+html.dark .border-slate-100,
+html.dark .border-slate-200,
+html.dark .border-slate-300,
+html.dark .border-gray-200,
+html.dark .border-gray-300 {
+  border-color: #334155;
+}
+
+html.dark .text-slate-900,
+html.dark .text-slate-800,
+html.dark .text-gray-800 {
+  color: #f8fafc;
+}
+
+html.dark .text-slate-700,
+html.dark .text-slate-600,
+html.dark .text-gray-700 {
+  color: #cbd5e1;
+}
+
+html.dark .text-slate-500,
+html.dark .text-slate-400,
+html.dark .text-gray-500,
+html.dark .text-gray-600 {
+  color: #94a3b8;
+}
+
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #475569;
+}

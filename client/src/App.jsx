@@ -11,8 +11,10 @@ import FuelExpenseManagement from "./components/fuelExpenseManagement"
 import ReportsAnalytics from "./components/reportsAnalytics"
 import TripManagement from "./components/tripManagement"
 import MaintenanceManagement from "./components/maintenanceManagement"
+import { ThemeProvider } from "./components/themeContext"
 function App() {
   return (
+    <ThemeProvider>
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginForm />} />
@@ -27,6 +29,7 @@ function App() {
         <Route path="/reports-analytics" element={<ReportsAnalytics />} />
       </Route>
     </Routes>
+    </ThemeProvider>
   );
 }
 

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTheme } from "../themeStore";
 
 const fleet = [
   { id: "VH-101", type: "Bus", status: "Active", region: "North" },
@@ -23,7 +24,7 @@ const Icon = ({ children }) => (
 
 const Dashboard = () => {
   const [filters, setFilters] = useState({ type: "All types", status: "All statuses", region: "All regions" });
-  const [isDark, setIsDark] = useState(false);
+  const { isDark, setIsDark } = useTheme();
 
   const visibleFleet = useMemo(
     () => fleet.filter((vehicle) =>
@@ -56,7 +57,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <main className={`min-h-screen px-4 py-6 transition-colors duration-300 sm:px-8 lg:px-12 ${isDark ? "dark bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-800"}`}>
+    <main className={`min-h-screen px-4 py-6 transition-colors duration-300 sm:px-8 lg:px-12 ${isDark ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-800"}`}>
       <div className="mx-auto max-w-7xl">
         <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
