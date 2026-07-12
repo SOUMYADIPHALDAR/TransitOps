@@ -2,6 +2,8 @@
 import { Routes, Route } from "react-router-dom";
 import LoginForm from "./components/loginForm"
 import Dashboard from "./components/dashboard"
+import VehicleRegistry from "./components/vehicalRegistry"
+import ManagementPage from "./components/managementPage"
 import SignupForm from "./components/signupForm"
 import DriverManagementForm from "./components/driverManagementForm"
 import FuelExpenseManagement from "./components/fuelExpenseManagement"
