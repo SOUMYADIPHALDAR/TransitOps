@@ -87,24 +87,31 @@ const editDriver = asyncHandler(async (req, res) => {
 });
 
 const deletDriver = asyncHandler(async (req, res) => {
-  const { id } = req.params
+  const { id } = req.params;
+
   const driver = await prisma.driver.findUnique({
     where: {
-      id
-    }
+      id,
+    },
   });
 
-  if(!driver){
-    throw new apiError(404, "Driver didn't exists")
+  if (!driver) {
+    throw new apiError(404, "Driver doesn't exist");
   }
 
-  await prisma.driver.delete({
+  const deletedDriver = await prisma.driver.delete({
     where: {
-      id
-    }
-  })
+      id,
+    },
+  });
 
   return res
     .status(200)
-    .json(new apiResponse(200, null, "Driver's information has been deleted successfully"));
+    .json(
+      new apiResponse(
+        200,
+        deletedDriver,
+        "Driver's information has been deleted successfully",
+      ),
+    );
 });
