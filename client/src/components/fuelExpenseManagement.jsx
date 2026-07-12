@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 
 const vehicles = ["VH-101", "VH-102", "VH-103", "VH-104", "VH-105"];
 const expenseTypes = ["Toll", "Maintenance", "Parking", "Other"];
@@ -53,7 +52,6 @@ const FuelExpenseManagement = () => {
             <h1 className="text-3xl font-bold tracking-tight text-slate-900">Fuel & Expense Management</h1>
             <p className="mt-1 text-sm text-slate-500">Record vehicle costs and monitor operational spending.</p>
           </div>
-          <Link to="/dashboard" className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">Back to dashboard</Link>
         </header>
 
         <section className="grid gap-6 lg:grid-cols-2">

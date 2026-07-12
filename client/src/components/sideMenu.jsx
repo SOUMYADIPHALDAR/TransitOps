@@ -39,7 +39,6 @@ export const SideMenu = () => (
         <p className="mt-2 text-xl font-bold text-white">Transit<span className="text-sky-400">Ops</span></p>
       </div>
       <MenuLinks />
-      <div className="mt-auto rounded-xl border border-slate-800 bg-slate-900/70 px-3 py-3 text-xs text-slate-400">Fleet management platform</div>
     </aside>
     <div className="sticky top-0 z-20 overflow-x-auto border-b border-slate-200 bg-white/95 px-3 py-2 shadow-sm backdrop-blur lg:hidden">
       <MenuLinks compact />
