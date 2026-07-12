@@ -1,6 +1,7 @@
 
 import { Routes, Route } from "react-router-dom";
 import LoginForm from "./components/loginForm"
+import Dashboard from "./components/dashboard"
 import { useState } from "react"
 import SignupForm from "./components/signupForm"
 function App() {
@@ -10,6 +11,7 @@ function App() {
     <Routes>
       <Route path="/" element={<LoginForm />} />
       <Route path="/signup" element={<SignupForm />} />
+      <Route path="/dashboard" element={<Dashboard />} />
     </Routes>
   );
 }
