@@ -5,6 +5,9 @@ import Dashboard from "./components/dashboard"
 import VehicleRegistry from "./components/vehicalRegistry"
 import ManagementPage from "./components/managementPage"
 import SignupForm from "./components/signupForm"
+import DriverManagementForm from "./components/driverManagementForm"
+import FuelExpenseManagement from "./components/fuelExpenseManagement"
+import ReportsAnalytics from "./components/reportsAnalytics"
 function App() {
   return (
     <Routes>
