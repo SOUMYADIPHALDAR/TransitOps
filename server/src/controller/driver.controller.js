@@ -23,6 +23,7 @@ const newDriver = asyncHandler(async (req, res) => {
   const existingDriver = await prisma.driver.findUnique({
     where: { licenseNumber },
   });
+  console.log(editDriver);
 
   if (existingDriver) {
     throw new apiError(404, "License already exists");
@@ -85,3 +86,4 @@ const editDriver = asyncHandler(async (req, res) => {
     );
 });
 
+const deletDriver = asyncHandler(async)
