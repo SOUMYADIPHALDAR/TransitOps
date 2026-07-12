@@ -9,6 +9,7 @@ import SignupForm from "./components/signupForm"
 import DriverManagementForm from "./components/driverManagementForm"
 import FuelExpenseManagement from "./components/fuelExpenseManagement"
 import ReportsAnalytics from "./components/reportsAnalytics"
+import TripManagement from "./components/tripManagement"
 function App() {
   return (
     <Routes>
