@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 
 const fleet = [
   { id: "VH-101", type: "Bus", status: "Active", region: "North" },
@@ -21,16 +20,6 @@ const Icon = ({ children }) => (
     {children}
   </svg>
 );
-
-const navigationItems = [
-  { label: "Dashboard", to: "/dashboard", icon: <path d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 0h6v6h-6v-6z" /> },
-  { label: "Vehicle Registry", to: "/vehicle-registry", icon: <path d="M3 13l2-5h14l2 5m-18 0v6h18v-6m-14 6v-3h4v3" /> },
-  { label: "Driver Management", to: "/driver-management", icon: <path d="M16 20v-1a4 4 0 00-4-4H7a4 4 0 00-4 4v1m6-9a4 4 0 100-8 4 4 0 000 8zm9 1v6m3-3h-6" /> },
-  { label: "Trip Management", to: "/trip-management", icon: <path d="M4 18h16M6 18V9l6-4 6 4v9" /> },
-  { label: "Maintenance", to: "/maintenance", icon: <path d="M14.7 6.3a4 4 0 01-5 5L4 17l3 3 5.7-5.7a4 4 0 005-5l-2.3 2.3-2.8-2.8 2.1-2.5z" /> },
-  { label: "Fuel & Expense Management", to: "/fuel-expenses", icon: <path d="M6 3h8v18H6V3zm8 4h2a2 2 0 012 2v12m-9-9h2" /> },
-  { label: "Reports & Analytics", to: "/reports-analytics", icon: <path d="M4 20V10m6 10V4m6 16v-7m4 7H2" /> },
-];
 
 const Dashboard = () => {
   const [filters, setFilters] = useState({ type: "All types", status: "All statuses", region: "All regions" });
@@ -66,31 +55,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-6 text-slate-800 sm:px-8 lg:pl-72 lg:pr-12">
-      <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col border-r border-slate-800 bg-slate-900 px-4 py-6 text-slate-100 lg:flex">
-        <Link to="/dashboard" className="mb-10 px-3">
-          <p className="text-xs font-bold tracking-[0.2em] text-sky-400">FLEET OPERATIONS</p>
-          <p className="mt-2 text-xl font-bold text-white">TransitOps</p>
-        </Link>
-        <nav aria-label="Main navigation" className="space-y-1">
-          {navigationItems.map((item) => {
-            const isActive = item.to === "/dashboard";
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                aria-current={isActive ? "page" : undefined}
-                className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition ${isActive ? "bg-blue-600 text-white shadow-sm" : "text-slate-300 hover:bg-slate-800 hover:text-white"}`}
-              >
-                <Icon>{item.icon}</Icon>
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-        <p className="mt-auto px-3 text-xs text-slate-500">Fleet management platform</p>
-      </aside>
-
+    <main className="min-h-screen bg-slate-50 px-4 py-6 text-slate-800 sm:px-8 lg:px-12">
       <div className="mx-auto max-w-7xl">
         <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -98,28 +63,11 @@ const Dashboard = () => {
             <h1 className="text-3xl font-bold tracking-tight text-slate-900">Dashboard</h1>
             <p className="mt-1 text-sm text-slate-500">Monitor your fleet performance at a glance.</p>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm">
+          <div className="rounded-full border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm">
               <span className="mr-2 inline-block h-2 w-2 rounded-full bg-emerald-500" />
               <span className="font-medium text-slate-700">Live fleet status</span>
               <span className="ml-2 text-slate-400">Updated just now</span>
-            </div>
-            <Link to="/vehicle-registry" className="rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-              Register vehicle
-            </Link>
           </div>
-          <Link to="/drivers" className="rounded-xl bg-blue-600 px-4 py-3 text-center text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
-            Manage drivers
-          </Link>
-          <Link to="/expenses" className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-center text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-100">
-            Fuel & expenses
-          </Link>
-          <Link to="/reports" className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
-            Reports & analytics
-          </Link>
-          <Link to="/trips" className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
-            Manage trips
-          </Link>
         </header>
 
         <section className="mb-7 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
