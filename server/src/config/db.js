@@ -6,7 +6,7 @@ const connectionString = process.env.DATABASE_URL;
 if(!connectionString) {
     throw new Error("Database url not found.");
 }
-
+console.log(connectionString);
 const adapter = new PrismaPg({connectionString});
 const prisma = new PrismaClient({adapter});
 
