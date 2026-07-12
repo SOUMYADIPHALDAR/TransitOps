@@ -1,118 +1,60 @@
-import prisma from "../config/db";
-import asyncHandler from "../utils/asyncHandler";
-import apiError from "../utils/apiError";
-import apiResponse from "../utils/apiResponse";
+import prisma from "../config/db.js";
+import asyncHandler from "../utills/asyncHandler.js";
+import apiError from "../utills/apiError.js";
+import apiResponse from "../utills/apiResponse.js";
 
-const newVehicle = asyncHandler(async (req, res) => {
-  const {
-    registrationNumber,
-    name,
-    type,
-    maxLoadCapacityKg,
-    odometer,
-    acquisitionCost,
-  } = req.body;
+const number = (value, field, { min = 0 } = {}) => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < min) throw new apiError(400, `${field} must be a valid number`);
+  return parsed;
+};
 
-  if (
-    !registrationNumber ||
-    !name ||
-    !type ||
-    !maxLoadCapacityKg ||
-    !odometer ||
-    !acquisitionCost
-  ) {
-    throw new apiError(404, "All feilds are required");
+const vehicleData = (body, partial = false) => {
+  const data = {};
+  const name = body.name ?? body.vehicleName;
+  const type = body.type ?? body.vehicleType;
+  const capacity = body.maxLoadCapacityKg ?? body.maximumLoadCapacity;
+  const fields = { registrationNumber: body.registrationNumber, name, type, region: body.region, status: body.status };
+  for (const [key, value] of Object.entries(fields)) if (value !== undefined && value !== "") data[key] = key === "status" ? String(value).toUpperCase().replaceAll(" ", "_") : value;
+  for (const [key, value] of Object.entries({ maxLoadCapacityKg: capacity, odometer: body.odometer, acquisitionCost: body.acquisitionCost })) {
+    if (value !== undefined && value !== "") data[key] = number(value, key);
   }
-
-  const existingVehicle = await prisma.vehicle.findUnique({
-    where: { registrationNumber },
-  });
-
-  if (existingVehicle) {
-    throw new apiError(400, "Unauthorized access");
+  if (!partial) {
+    for (const key of ["registrationNumber", "name", "type", "maxLoadCapacityKg", "odometer", "acquisitionCost"]) if (data[key] === undefined) throw new apiError(400, `${key} is required`);
   }
+  return data;
+};
 
-  const createVehicle = await prisma.vehicle.create({
-    data: {
-      registrationNumber,
-      name,
-      type,
-      maxLoadCapacityKg,
-      odometer,
-      acquisitionCost,
-      createdAt: new Date(),
-    },
-  });
-
-  return res
-    .status(200)
-    .json(
-      new apiResponse(
-        200,
-        createVehicle,
-        "New vehicle is created successfully",
-      ),
-    );
+const createVehicle = asyncHandler(async (req, res) => {
+  const data = vehicleData(req.body);
+  const vehicle = await prisma.vehicle.create({ data });
+  res.status(201).json(new apiResponse(201, vehicle, "Vehicle created successfully"));
 });
 
+const getVehicles = asyncHandler(async (_req, res) => {
+  const vehicles = await prisma.vehicle.findMany({ orderBy: { createdAt: "desc" } });
+  res.json(new apiResponse(200, vehicles, "Vehicles fetched successfully"));
+});
 
 const getVehicle = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const vehicle = await prisma.vehicle.findUnique({
-    where: {
-      id,
-    },
-    include: {
-      registrationNumber,
-      name,
-      type,
-      maxLoadCapacityKg,
-      odometer,
-      acquisitionCost,
-    },
-  });
-  if (!vehicle) {
-    throw new apiError(404, "No vehicle found");
-  }
-
-  return res
-    .status(200)
-    .json(new apiResponse(200, vehicle, "Vehicle info has been fetched"));
+  const vehicle = await prisma.vehicle.findUnique({ where: { id: req.params.id }, include: { trips: true, maintenanceLogs: true, fuelLogs: true, expenses: true } });
+  if (!vehicle) throw new apiError(404, "Vehicle not found");
+  res.json(new apiResponse(200, vehicle, "Vehicle fetched successfully"));
 });
 
-const getAllVehicles = asyncHandler(async (req, res) => {
-  const vehicles = await prisma.vehicle.findMany();
-  if (vehicles.length == 0) {
-    throw new apiError(404, "No vehicles has been found");
-  }
-
-  return res
-    .status(200)
-    .json(new apiResponse(200, vehicles, "All the vehicles has been fetched"));
+const updateVehicle = asyncHandler(async (req, res) => {
+  const exists = await prisma.vehicle.findUnique({ where: { id: req.params.id } });
+  if (!exists) throw new apiError(404, "Vehicle not found");
+  const vehicle = await prisma.vehicle.update({ where: { id: req.params.id }, data: vehicleData(req.body, true) });
+  res.json(new apiResponse(200, vehicle, "Vehicle updated successfully"));
 });
 
 const deleteVehicle = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-
-  const vehicle = await prisma.vehicle.findUnique({
-    where: {
-      id,
-    },
-  });
-
-  if (!vehicle) {
-    throw new apiError(404, "Vehicle not found");
-  }
-
-  await prisma.vehicle.delete({
-    where: {
-      id,
-    },
-  });
-
-  return res
-    .status(200)
-    .json(new apiResponse(200, null, "Vehicle deleted successfully"));
+  const vehicle = await prisma.vehicle.findUnique({ where: { id: req.params.id }, include: { trips: { select: { id: true } }, maintenanceLogs: { select: { id: true } }, fuelLogs: { select: { id: true } }, expenses: { select: { id: true } } } });
+  if (!vehicle) throw new apiError(404, "Vehicle not found");
+  if (vehicle.trips.length || vehicle.maintenanceLogs.length || vehicle.fuelLogs.length || vehicle.expenses.length) throw new apiError(409, "A vehicle with operational records cannot be deleted");
+  await prisma.vehicle.delete({ where: { id: req.params.id } });
+  res.json(new apiResponse(200, null, "Vehicle deleted successfully"));
 });
 
-export { newVehicle, editVehicle, getVehicle, getAllVehicles, deleteVehicle}
+export { createVehicle, getVehicles, getVehicle, updateVehicle, deleteVehicle };
