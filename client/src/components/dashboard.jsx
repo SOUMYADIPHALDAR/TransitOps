@@ -83,6 +83,9 @@ const Dashboard = () => {
           <Link to="/reports" className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
             Reports & analytics
           </Link>
+          <Link to="/trips" className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+            Manage trips
+          </Link>
         </header>
 
         <section className="mb-7 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
