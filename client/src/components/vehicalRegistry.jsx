@@ -1,90 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { api, titleCase } from "../api";
 
-const initialForm = {
-  registrationNumber: "",
-  vehicleName: "",
-  vehicleType: "",
-  maximumLoadCapacity: "",
-  odometer: "",
-  acquisitionCost: "",
-  status: "Available",
-};
+const empty = { registrationNumber: "", vehicleName: "", vehicleType: "", maximumLoadCapacity: "", odometer: "", acquisitionCost: "", region: "", status: "Available" };
+const input = "mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
-const VehicleRegistry = () => {
-  const [form, setForm] = useState(initialForm);
-  const [message, setMessage] = useState("");
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setForm((current) => ({ ...current, [name]: value }));
-    setMessage("");
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setMessage(`Vehicle ${form.registrationNumber.toUpperCase()} has been registered.`);
-    setForm(initialForm);
-  };
-
-  const fieldClass = "mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
-
-  return (
-    <main className="min-h-screen bg-slate-50 px-4 py-6 text-slate-800 sm:px-8 lg:px-12">
-      <div className="mx-auto max-w-3xl">
-        <header className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="mb-1 text-sm font-semibold tracking-wide text-blue-600">FLEET OPERATIONS</p>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900">Vehicle Registry</h1>
-            <p className="mt-1 text-sm text-slate-500">Add a vehicle to the fleet master list.</p>
-          </div>
-        </header>
-
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
-          {message && <div role="status" className="mb-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">{message}</div>}
-          <form onSubmit={handleSubmit} className="grid gap-5 md:grid-cols-2">
-            <label className="text-sm font-medium text-slate-700">
-              Registration Number <span className="text-rose-600">*</span>
-              <input name="registrationNumber" value={form.registrationNumber} onChange={handleChange} required placeholder="e.g. MH 12 AB 1234" className={fieldClass} />
-              <span className="mt-1 block text-xs font-normal text-slate-500">Must be unique for every vehicle.</span>
-            </label>
-            <label className="text-sm font-medium text-slate-700">
-              Vehicle Name / Model <span className="text-rose-600">*</span>
-              <input name="vehicleName" value={form.vehicleName} onChange={handleChange} required placeholder="e.g. Tata Starbus" className={fieldClass} />
-            </label>
-            <label className="text-sm font-medium text-slate-700">
-              Vehicle Type <span className="text-rose-600">*</span>
-              <select name="vehicleType" value={form.vehicleType} onChange={handleChange} required className={fieldClass}>
-                <option value="" disabled>Select vehicle type</option>
-                <option>Bus</option><option>Van</option><option>Truck</option><option>Car</option><option>Other</option>
-              </select>
-            </label>
-            <label className="text-sm font-medium text-slate-700">
-              Maximum Load Capacity (kg) <span className="text-rose-600">*</span>
-              <input name="maximumLoadCapacity" value={form.maximumLoadCapacity} onChange={handleChange} required min="0" step="0.01" type="number" placeholder="e.g. 5000" className={fieldClass} />
-            </label>
-            <label className="text-sm font-medium text-slate-700">
-              Odometer (km) <span className="text-rose-600">*</span>
-              <input name="odometer" value={form.odometer} onChange={handleChange} required min="0" step="1" type="number" placeholder="e.g. 45000" className={fieldClass} />
-            </label>
-            <label className="text-sm font-medium text-slate-700">
-              Acquisition Cost <span className="text-rose-600">*</span>
-              <input name="acquisitionCost" value={form.acquisitionCost} onChange={handleChange} required min="0" step="0.01" type="number" placeholder="e.g. 1250000" className={fieldClass} />
-            </label>
-            <label className="text-sm font-medium text-slate-700 md:col-span-2">
-              Status <span className="text-rose-600">*</span>
-              <select name="status" value={form.status} onChange={handleChange} className={fieldClass}>
-                <option>Available</option><option>On Trip</option><option>In Shop</option><option>Retired</option>
-              </select>
-            </label>
-            <div className="flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-5 md:col-span-2">
-              <button type="button" onClick={() => { setForm(initialForm); setMessage(""); }} className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Clear</button>
-              <button type="submit" className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Register Vehicle</button>
-            </div>
-          </form>
-        </section>
-      </div>
-    </main>
-  );
-};
-
-export default VehicleRegistry;
+export default function VehicleRegistry() {
+  const [form, setForm] = useState(empty), [vehicles, setVehicles] = useState([]), [notice, setNotice] = useState(""), [error, setError] = useState(""), [saving, setSaving] = useState(false);
+  const load = async () => { try { setVehicles(await api("/vehicles")); } catch (e) { setError(e.message); } };
+  useEffect(() => { load(); }, []);
+  const submit = async (event) => { event.preventDefault(); setSaving(true); setError(""); try { await api("/vehicles", { method: "POST", body: JSON.stringify(form) }); setForm(empty); setNotice("Vehicle registered successfully."); load(); } catch (e) { setError(e.message); } finally { setSaving(false); } };
+  return <main className="min-h-screen bg-slate-50 px-4 py-6 text-slate-800 sm:px-8 lg:px-12"><div className="mx-auto max-w-6xl">
+    <header className="mb-7"><p className="text-sm font-semibold tracking-wide text-blue-600">FLEET OPERATIONS</p><h1 className="text-3xl font-bold">Vehicle Registry</h1><p className="mt-1 text-sm text-slate-500">Register vehicles and view live fleet records.</p></header>
+    {notice && <p className="mb-4 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">{notice}</p>}{error && <p className="mb-4 rounded-lg bg-rose-50 p-3 text-sm text-rose-800">{error}</p>}
+    <form onSubmit={submit} className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-2"><h2 className="font-semibold md:col-span-2">Register a vehicle</h2>{[["registrationNumber","Registration number"],["vehicleName","Vehicle name / model"],["vehicleType","Vehicle type"],["maximumLoadCapacity","Maximum load capacity (kg)"],["odometer","Odometer (km)"],["acquisitionCost","Acquisition cost (₹)"],["region","Region"]].map(([name,label]) => <label key={name} className="text-sm font-medium">{label}{name !== "region" && " *"}<input required={name !== "region"} type={name.includes("Capacity") || name === "odometer" || name === "acquisitionCost" ? "number" : "text"} min="0" name={name} value={form[name]} onChange={e => setForm({ ...form, [name]: e.target.value })} className={input}/></label>)}<label className="text-sm font-medium">Status<select name="status" value={form.status} onChange={e => setForm({ ...form, status:e.target.value })} className={input}><option>Available</option><option>On Trip</option><option>In Shop</option><option>Retired</option></select></label><div className="flex items-end"><button disabled={saving} className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50">{saving ? "Saving…" : "Register vehicle"}</button></div></form>
+    <section className="mt-7 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div className="border-b p-5"><h2 className="font-semibold">Fleet master list</h2></div><div className="overflow-x-auto"><table className="w-full min-w-[700px] text-left text-sm"><thead className="bg-slate-50 text-xs uppercase text-slate-500"><tr><th className="p-4">Registration</th><th className="p-4">Vehicle</th><th className="p-4">Type</th><th className="p-4">Region</th><th className="p-4">Odometer</th><th className="p-4">Status</th></tr></thead><tbody className="divide-y">{vehicles.map(v => <tr key={v.id}><td className="p-4 font-semibold">{v.registrationNumber}</td><td className="p-4">{v.name}</td><td className="p-4">{v.type}</td><td className="p-4">{v.region || "—"}</td><td className="p-4">{Number(v.odometer).toLocaleString()} km</td><td className="p-4"><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold">{titleCase(v.status)}</span></td></tr>)}{!vehicles.length && <tr><td colSpan="6" className="p-8 text-center text-slate-500">No vehicles found.</td></tr>}</tbody></table></div></section>
+  </div></main>;
+}

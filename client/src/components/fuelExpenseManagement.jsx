@@ -1,92 +1,17 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { api, currency, formatDate, titleCase } from "../api";
 
-const vehicles = ["VH-101", "VH-102", "VH-103", "VH-104", "VH-105"];
-const expenseTypes = ["Toll", "Maintenance", "Parking", "Other"];
-
-const initialFuelLogs = [
-  { id: 1, vehicle: "VH-101", liters: 58, cost: 5520, date: "2026-07-10" },
-  { id: 2, vehicle: "VH-102", liters: 42, cost: 3990, date: "2026-07-10" },
-  { id: 3, vehicle: "VH-101", liters: 35, cost: 3325, date: "2026-07-08" },
-];
-
-const initialExpenses = [
-  { id: 1, vehicle: "VH-101", type: "Maintenance", cost: 2800, date: "2026-07-09" },
-  { id: 2, vehicle: "VH-102", type: "Toll", cost: 450, date: "2026-07-10" },
-  { id: 3, vehicle: "VH-103", type: "Maintenance", cost: 6200, date: "2026-07-07" },
-];
-
-const formatCurrency = (value) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value);
-
-const FuelExpenseManagement = () => {
-  const [fuelLogs, setFuelLogs] = useState(initialFuelLogs);
-  const [expenses, setExpenses] = useState(initialExpenses);
-  const [fuelForm, setFuelForm] = useState({ vehicle: "", liters: "", cost: "", date: "" });
-  const [expenseForm, setExpenseForm] = useState({ vehicle: "", type: "Toll", cost: "", date: "" });
-
-  const operationalCosts = useMemo(() => vehicles.map((vehicle) => {
-    const fuel = fuelLogs.filter((log) => log.vehicle === vehicle).reduce((total, log) => total + log.cost, 0);
-    const maintenance = expenses.filter((expense) => expense.vehicle === vehicle && expense.type === "Maintenance").reduce((total, expense) => total + expense.cost, 0);
-    return { vehicle, fuel, maintenance, total: fuel + maintenance };
-  }), [fuelLogs, expenses]);
-
-  const handleFuelSubmit = (event) => {
-    event.preventDefault();
-    setFuelLogs((logs) => [{ id: Date.now(), vehicle: fuelForm.vehicle, liters: Number(fuelForm.liters), cost: Number(fuelForm.cost), date: fuelForm.date }, ...logs]);
-    setFuelForm({ vehicle: "", liters: "", cost: "", date: "" });
-  };
-
-  const handleExpenseSubmit = (event) => {
-    event.preventDefault();
-    setExpenses((currentExpenses) => [{ id: Date.now(), vehicle: expenseForm.vehicle, type: expenseForm.type, cost: Number(expenseForm.cost), date: expenseForm.date }, ...currentExpenses]);
-    setExpenseForm({ vehicle: "", type: "Toll", cost: "", date: "" });
-  };
-
-  const inputClass = "mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
-
-  return (
-    <main className="min-h-screen bg-slate-50 px-4 py-6 text-slate-800 sm:px-8 lg:px-12">
-      <div className="mx-auto max-w-7xl">
-        <header className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="mb-1 text-sm font-semibold tracking-wide text-blue-600">FLEET OPERATIONS</p>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900">Fuel & Expense Management</h1>
-            <p className="mt-1 text-sm text-slate-500">Record vehicle costs and monitor operational spending.</p>
-          </div>
-        </header>
-
-        <section className="grid gap-6 lg:grid-cols-2">
-          <form onSubmit={handleFuelSubmit} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-            <h2 className="font-semibold text-slate-800">Add fuel log</h2>
-            <p className="mt-1 text-sm text-slate-500">Record fuel quantity, cost, and date.</p>
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <label className="text-sm font-medium text-slate-700">Vehicle *<select required value={fuelForm.vehicle} onChange={(event) => setFuelForm({ ...fuelForm, vehicle: event.target.value })} className={inputClass}><option value="" disabled>Select vehicle</option>{vehicles.map((vehicle) => <option key={vehicle}>{vehicle}</option>)}</select></label>
-              <label className="text-sm font-medium text-slate-700">Date *<input required type="date" value={fuelForm.date} onChange={(event) => setFuelForm({ ...fuelForm, date: event.target.value })} className={inputClass} /></label>
-              <label className="text-sm font-medium text-slate-700">Fuel quantity (liters) *<input required min="0.01" step="0.01" type="number" value={fuelForm.liters} onChange={(event) => setFuelForm({ ...fuelForm, liters: event.target.value })} placeholder="e.g. 50" className={inputClass} /></label>
-              <label className="text-sm font-medium text-slate-700">Fuel cost (₹) *<input required min="0" step="0.01" type="number" value={fuelForm.cost} onChange={(event) => setFuelForm({ ...fuelForm, cost: event.target.value })} placeholder="e.g. 4750" className={inputClass} /></label>
-            </div>
-            <button type="submit" className="mt-5 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">Save fuel log</button>
-          </form>
-
-          <form onSubmit={handleExpenseSubmit} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-            <h2 className="font-semibold text-slate-800">Add other expense</h2>
-            <p className="mt-1 text-sm text-slate-500">Record toll, maintenance, parking, or other costs.</p>
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <label className="text-sm font-medium text-slate-700">Vehicle *<select required value={expenseForm.vehicle} onChange={(event) => setExpenseForm({ ...expenseForm, vehicle: event.target.value })} className={inputClass}><option value="" disabled>Select vehicle</option>{vehicles.map((vehicle) => <option key={vehicle}>{vehicle}</option>)}</select></label>
-              <label className="text-sm font-medium text-slate-700">Date *<input required type="date" value={expenseForm.date} onChange={(event) => setExpenseForm({ ...expenseForm, date: event.target.value })} className={inputClass} /></label>
-              <label className="text-sm font-medium text-slate-700">Expense type *<select value={expenseForm.type} onChange={(event) => setExpenseForm({ ...expenseForm, type: event.target.value })} className={inputClass}>{expenseTypes.map((type) => <option key={type}>{type}</option>)}</select></label>
-              <label className="text-sm font-medium text-slate-700">Cost (₹) *<input required min="0" step="0.01" type="number" value={expenseForm.cost} onChange={(event) => setExpenseForm({ ...expenseForm, cost: event.target.value })} placeholder="e.g. 500" className={inputClass} /></label>
-            </div>
-            <button type="submit" className="mt-5 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">Save expense</button>
-          </form>
-        </section>
-
-        <section className="mt-7 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-100 px-5 py-4"><h2 className="font-semibold text-slate-800">Operational cost by vehicle</h2><p className="mt-1 text-sm text-slate-500">Total operational cost is calculated as Fuel + Maintenance.</p></div>
-          <div className="overflow-x-auto"><table className="w-full min-w-[600px] text-left text-sm"><thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-3 font-semibold">Vehicle</th><th className="px-5 py-3 font-semibold">Fuel</th><th className="px-5 py-3 font-semibold">Maintenance</th><th className="px-5 py-3 font-semibold">Operational cost</th></tr></thead><tbody className="divide-y divide-slate-100">{operationalCosts.map((cost) => <tr key={cost.vehicle} className="hover:bg-slate-50"><td className="px-5 py-4 font-semibold text-slate-700">{cost.vehicle}</td><td className="px-5 py-4 text-slate-600">{formatCurrency(cost.fuel)}</td><td className="px-5 py-4 text-slate-600">{formatCurrency(cost.maintenance)}</td><td className="px-5 py-4 font-semibold text-slate-900">{formatCurrency(cost.total)}</td></tr>)}</tbody></table></div>
-        </section>
-      </div>
-    </main>
-  );
-};
-
-export default FuelExpenseManagement;
+const input="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+export default function FuelExpenseManagement(){
+  const [vehicles,setVehicles]=useState([]),[fuel,setFuel]=useState([]),[expenses,setExpenses]=useState([]),[fuelForm,setFuelForm]=useState({vehicleId:"",liters:"",cost:"",date:""}),[expenseForm,setExpenseForm]=useState({vehicleId:"",type:"TOLL",amount:"",notes:"",date:""}),[error,setError]=useState(""),[notice,setNotice]=useState("");
+  const load=async()=>{try{const[v,f,e]=await Promise.all([api("/vehicles"),api("/fuel-logs"),api("/expenses")]);setVehicles(v);setFuel(f);setExpenses(e)}catch(err){setError(err.message)}};useEffect(()=>{load()},[]);
+  const save=async(kind,event)=>{event.preventDefault();setError("");try{const form=kind==="fuel"?fuelForm:expenseForm;await api(kind==="fuel"?"/fuel-logs":"/expenses",{method:"POST",body:JSON.stringify(form)});if(kind==="fuel")setFuelForm({vehicleId:"",liters:"",cost:"",date:""});else setExpenseForm({vehicleId:"",type:"TOLL",amount:"",notes:"",date:""});setNotice(`${kind==="fuel"?"Fuel log":"Expense"} saved.`);load()}catch(err){setError(err.message)}};
+  const costs=useMemo(()=>vehicles.map(v=>{const fuelCost=fuel.filter(f=>f.vehicleId===v.id).reduce((n,f)=>n+f.cost,0);const other=expenses.filter(e=>e.vehicleId===v.id).reduce((n,e)=>n+e.amount,0);return{...v,fuelCost,other,total:fuelCost+other}}),[vehicles,fuel,expenses]);
+  const vehicleOptions=<><option value="">Select vehicle</option>{vehicles.map(v=><option key={v.id} value={v.id}>{v.registrationNumber}</option>)}</>;
+  return <main className="min-h-screen bg-slate-50 px-4 py-6 text-slate-800 sm:px-8 lg:px-12"><div className="mx-auto max-w-7xl"><header className="mb-7"><p className="text-sm font-semibold tracking-wide text-blue-600">FLEET OPERATIONS</p><h1 className="text-3xl font-bold">Fuel & Expenses</h1><p className="mt-1 text-sm text-slate-500">Costs and operational totals sourced from the database.</p></header>{error&&<p className="mb-4 rounded-lg bg-rose-50 p-3 text-sm text-rose-800">{error}</p>}{notice&&<p className="mb-4 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">{notice}</p>}
+  <section className="grid gap-6 lg:grid-cols-2"><form onSubmit={e=>save("fuel",e)} className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-2"><h2 className="font-semibold sm:col-span-2">Add fuel log</h2><label className="text-sm font-medium">Vehicle *<select required value={fuelForm.vehicleId} onChange={e=>setFuelForm({...fuelForm,vehicleId:e.target.value})} className={input}>{vehicleOptions}</select></label><label className="text-sm font-medium">Date<input type="date" value={fuelForm.date} onChange={e=>setFuelForm({...fuelForm,date:e.target.value})} className={input}/></label><label className="text-sm font-medium">Liters *<input required min="0.01" step="0.01" type="number" value={fuelForm.liters} onChange={e=>setFuelForm({...fuelForm,liters:e.target.value})} className={input}/></label><label className="text-sm font-medium">Cost (₹) *<input required min="0" type="number" value={fuelForm.cost} onChange={e=>setFuelForm({...fuelForm,cost:e.target.value})} className={input}/></label><button className="w-fit rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white">Save fuel log</button></form>
+  <form onSubmit={e=>save("expense",e)} className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-2"><h2 className="font-semibold sm:col-span-2">Add expense</h2><label className="text-sm font-medium">Vehicle *<select required value={expenseForm.vehicleId} onChange={e=>setExpenseForm({...expenseForm,vehicleId:e.target.value})} className={input}>{vehicleOptions}</select></label><label className="text-sm font-medium">Date<input type="date" value={expenseForm.date} onChange={e=>setExpenseForm({...expenseForm,date:e.target.value})} className={input}/></label><label className="text-sm font-medium">Type *<select value={expenseForm.type} onChange={e=>setExpenseForm({...expenseForm,type:e.target.value})} className={input}><option value="TOLL">Toll</option><option value="MAINTENANCE">Maintenance</option><option value="OTHER">Other</option></select></label><label className="text-sm font-medium">Amount (₹) *<input required min="0" type="number" value={expenseForm.amount} onChange={e=>setExpenseForm({...expenseForm,amount:e.target.value})} className={input}/></label><label className="text-sm font-medium sm:col-span-2">Notes<input value={expenseForm.notes} onChange={e=>setExpenseForm({...expenseForm,notes:e.target.value})} className={input}/></label><button className="w-fit rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white">Save expense</button></form></section>
+  <section className="mt-7 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div className="border-b p-5"><h2 className="font-semibold">Operational cost by vehicle</h2></div><div className="overflow-x-auto"><table className="w-full min-w-[700px] text-left text-sm"><thead className="bg-slate-50 text-xs uppercase text-slate-500"><tr><th className="p-4">Vehicle</th><th className="p-4">Fuel</th><th className="p-4">Other expenses</th><th className="p-4">Total</th></tr></thead><tbody className="divide-y">{costs.map(c=><tr key={c.id}><td className="p-4 font-semibold">{c.registrationNumber}</td><td className="p-4">{currency(c.fuelCost)}</td><td className="p-4">{currency(c.other)}</td><td className="p-4 font-semibold">{currency(c.total)}</td></tr>)}{!costs.length&&<tr><td colSpan="4" className="p-8 text-center text-slate-500">No vehicles found.</td></tr>}</tbody></table></div></section>
+  <section className="mt-7 grid gap-6 lg:grid-cols-2"><DataTable title="Recent fuel logs" rows={fuel} columns={[["Vehicle",r=>r.vehicle.registrationNumber],["Liters",r=>r.liters],["Cost",r=>currency(r.cost)],["Date",r=>formatDate(r.date)]]}/><DataTable title="Recent expenses" rows={expenses} columns={[["Vehicle",r=>r.vehicle.registrationNumber],["Type",r=>titleCase(r.type)],["Amount",r=>currency(r.amount)],["Date",r=>formatDate(r.date)]]}/></section></div></main>;
+}
+function DataTable({title,rows,columns}){return <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><h2 className="border-b p-5 font-semibold">{title}</h2><div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="bg-slate-50 text-xs uppercase text-slate-500"><tr>{columns.map(([name])=><th key={name} className="p-4">{name}</th>)}</tr></thead><tbody className="divide-y">{rows.slice(0,8).map(r=><tr key={r.id}>{columns.map(([name,get])=><td key={name} className="p-4">{get(r)}</td>)}</tr>)}{!rows.length&&<tr><td colSpan={columns.length} className="p-6 text-center text-slate-500">No records found.</td></tr>}</tbody></table></div></section>}
