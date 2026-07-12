@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 
 const fleet = [
   { id: "VH-101", type: "Bus", status: "Active", region: "North" },
@@ -68,6 +69,15 @@ const Dashboard = () => {
             <span className="font-medium text-slate-700">Live fleet status</span>
             <span className="ml-2 text-slate-400">Updated just now</span>
           </div>
+          <Link to="/drivers" className="rounded-xl bg-blue-600 px-4 py-3 text-center text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
+            Manage drivers
+          </Link>
+          <Link to="/expenses" className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-center text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-100">
+            Fuel & expenses
+          </Link>
+          <Link to="/reports" className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+            Reports & analytics
+          </Link>
         </header>
 
         <section className="mb-7 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
