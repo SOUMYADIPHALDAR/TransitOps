@@ -1,19 +1,31 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const LoginForm = () => {
+const SignupForm = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
         <h1 className="text-3xl font-bold text-center text-gray-800">
-          Welcome Back
+          Create Account
         </h1>
 
         <p className="text-center text-gray-500 mt-2 mb-8">
-          Sign in to your account
+          Sign up to get started
         </p>
 
         <form className="space-y-5">
+          {/* Full Name */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">
+              Full Name
+            </label>
+            <input
+              type="text"
+              placeholder="Enter your full name"
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
           {/* Email */}
           <div>
             <label className="block text-gray-700 font-medium mb-2">
@@ -22,7 +34,7 @@ const LoginForm = () => {
             <input
               type="email"
               placeholder="Enter your email"
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -33,29 +45,35 @@ const LoginForm = () => {
             </label>
             <input
               type="password"
-              placeholder="Enter your password"
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Create a password"
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          {/* Remember Me & Forgot Password */}
-          <div className="flex justify-between items-center text-sm">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" />
-              Remember me
+          {/* Confirm Password */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">
+              Confirm Password
             </label>
-
-            <a href="#" className="text-blue-600 hover:underline">
-              Forgot Password?
-            </a>
+            <input
+              type="password"
+              placeholder="Confirm your password"
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
 
-          {/* Login Button */}
+          {/* Terms */}
+          <label className="flex items-center gap-2 text-sm text-gray-600">
+            <input type="checkbox" />
+            I agree to the Terms & Conditions
+          </label>
+
+          {/* Sign Up Button */}
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition"
+            className="w-full rounded-lg bg-blue-600 py-3 text-white font-semibold hover:bg-blue-700 transition"
           >
-            Login
+            Sign Up
           </button>
         </form>
 
@@ -82,18 +100,17 @@ const LoginForm = () => {
           Continue with Google
         </button>
 
-        {/* Sign Up */}
-        <p className="text-center text-gray-500 mt-6">
-          Don't have an account?{" "}
-           <Link 
-           to="/signup"
-           className="text-blue-600 hover:underline font-medium">
-            Sign Up
-          </Link>
+        <p className="mt-6 text-center text-gray-500">
+            Already have an account?{" "}
+            <Link
+                to="/"
+                className="text-blue-600 hover:underline">
+                Login
+            </Link>
         </p>
       </div>
     </div>
   );
 };
 
-export default LoginForm;
+export default SignupForm;
