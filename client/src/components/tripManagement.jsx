@@ -24,6 +24,8 @@ const TripManagement = () => {
   const updateStatus = (id, status) => setTrips((currentTrips) => currentTrips.map((trip) => trip.id === id ? { ...trip, status } : trip));
   const inputClass = "mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
   const statusStyle = { Draft: "bg-slate-100 text-slate-700", Dispatched: "bg-blue-50 text-blue-700", Completed: "bg-emerald-50 text-emerald-700", Cancelled: "bg-rose-50 text-rose-700" };
+  const inShopVehicles = JSON.parse(localStorage.getItem("inShopVehicles") || "[]");
+  const assignableVehicles = availableVehicles.filter((vehicle) => !inShopVehicles.includes(vehicle.split(" ")[0]));
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-6 text-slate-800 sm:px-8 lg:px-12">
@@ -38,7 +40,7 @@ const TripManagement = () => {
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <label className="text-sm font-medium text-slate-700">Source *<input required value={form.source} onChange={(event) => setForm({ ...form, source: event.target.value })} placeholder="e.g. Mumbai" className={inputClass} /></label>
             <label className="text-sm font-medium text-slate-700">Destination *<input required value={form.destination} onChange={(event) => setForm({ ...form, destination: event.target.value })} placeholder="e.g. Pune" className={inputClass} /></label>
-            <label className="text-sm font-medium text-slate-700">Available vehicle *<select required value={form.vehicle} onChange={(event) => setForm({ ...form, vehicle: event.target.value })} className={inputClass}><option value="" disabled>Select vehicle</option>{availableVehicles.map((vehicle) => <option key={vehicle}>{vehicle}</option>)}</select></label>
+            <label className="text-sm font-medium text-slate-700">Available vehicle *<select required value={form.vehicle} onChange={(event) => setForm({ ...form, vehicle: event.target.value })} className={inputClass}><option value="" disabled>Select vehicle</option>{assignableVehicles.map((vehicle) => <option key={vehicle}>{vehicle}</option>)}</select></label>
             <label className="text-sm font-medium text-slate-700">Available driver *<select required value={form.driver} onChange={(event) => setForm({ ...form, driver: event.target.value })} className={inputClass}><option value="" disabled>Select driver</option>{availableDrivers.map((driver) => <option key={driver}>{driver}</option>)}</select></label>
             <label className="text-sm font-medium text-slate-700">Cargo weight (kg) *<input required type="number" min="1" value={form.cargoWeight} onChange={(event) => setForm({ ...form, cargoWeight: event.target.value })} placeholder="e.g. 850" className={inputClass} /></label>
             <label className="text-sm font-medium text-slate-700">Planned distance (km) *<input required type="number" min="1" value={form.distance} onChange={(event) => setForm({ ...form, distance: event.target.value })} placeholder="e.g. 148" className={inputClass} /></label>
