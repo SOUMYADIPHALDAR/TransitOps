@@ -23,6 +23,7 @@ const Icon = ({ children }) => (
 
 const Dashboard = () => {
   const [filters, setFilters] = useState({ type: "All types", status: "All statuses", region: "All regions" });
+  const [isDark, setIsDark] = useState(false);
 
   const visibleFleet = useMemo(
     () => fleet.filter((vehicle) =>
@@ -55,34 +56,39 @@ const Dashboard = () => {
   ];
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-6 text-slate-800 sm:px-8 lg:px-12">
+    <main className={`min-h-screen px-4 py-6 transition-colors duration-300 sm:px-8 lg:px-12 ${isDark ? "dark bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-800"}`}>
       <div className="mx-auto max-w-7xl">
         <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="mb-1 text-sm font-semibold tracking-wide text-blue-600">FLEET OPERATIONS</p>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900">Dashboard</h1>
-            <p className="mt-1 text-sm text-slate-500">Monitor your fleet performance at a glance.</p>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Dashboard</h1>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Monitor your fleet performance at a glance.</p>
           </div>
-          <div className="rounded-full border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="rounded-full border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-900">
               <span className="mr-2 inline-block h-2 w-2 rounded-full bg-emerald-500" />
-              <span className="font-medium text-slate-700">Live fleet status</span>
+              <span className="font-medium text-slate-700 dark:text-slate-200">Live fleet status</span>
               <span className="ml-2 text-slate-400">Updated just now</span>
+            </div>
+            <button type="button" onClick={() => setIsDark((current) => !current)} aria-label={`Switch to ${isDark ? "light" : "dark"} theme`} className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">
+              {isDark ? <><Icon><path d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.4-6.4L17 7m-10 10l-1.4 1.4m12.8 0L17 17M7 7L5.6 5.6M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></Icon> Light</> : <><Icon><path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z" /></Icon> Dark</>}
+            </button>
           </div>
         </header>
 
-        <section className="mb-7 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-700">
+        <section className="mb-7 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
             <Icon><path d="M4 4h16M7 12h10m-7 8h4" /></Icon>
             Filter dashboard
           </div>
           <div className="grid gap-3 md:grid-cols-3">
             {selectOptions.map(({ key, label, options }) => (
-              <label key={key} className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label key={key} className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 {label}
                 <select
                   value={filters[key]}
                   onChange={(event) => setFilters({ ...filters, [key]: event.target.value })}
-                  className="mt-2 w-full cursor-pointer appearance-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium normal-case tracking-normal text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="mt-2 w-full cursor-pointer appearance-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium normal-case tracking-normal text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:ring-blue-900"
                 >
                   {options.map((option) => <option key={option}>{option}</option>)}
                 </select>
@@ -93,11 +99,11 @@ const Dashboard = () => {
 
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {kpis.map((kpi) => (
-            <article key={kpi.label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+            <article key={kpi.label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm font-medium text-slate-500">{kpi.label}</p>
-                  <p className="mt-2 text-3xl font-bold text-slate-900">{kpi.value}</p>
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{kpi.label}</p>
+                  <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{kpi.value}</p>
                   <p className="mt-2 text-xs text-slate-400">Based on current filters</p>
                 </div>
                 <div className={`rounded-xl p-3 ${kpi.tone}`}><Icon>{kpi.icon}</Icon></div>
@@ -118,15 +124,15 @@ const Dashboard = () => {
           </article>
         </section>
 
-        <section className="mt-7 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-            <div><h2 className="font-semibold text-slate-800">Fleet overview</h2><p className="text-sm text-slate-500">{visibleFleet.length} vehicles matching your filters</p></div>
+        <section className="mt-7 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 dark:border-slate-800">
+            <div><h2 className="font-semibold text-slate-800 dark:text-white">Fleet overview</h2><p className="text-sm text-slate-500 dark:text-slate-400">{visibleFleet.length} vehicles matching your filters</p></div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[580px] text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-3 font-semibold">Vehicle</th><th className="px-5 py-3 font-semibold">Type</th><th className="px-5 py-3 font-semibold">Region</th><th className="px-5 py-3 font-semibold">Status</th></tr></thead>
-              <tbody className="divide-y divide-slate-100">
-                {visibleFleet.map((vehicle) => <tr key={vehicle.id} className="hover:bg-slate-50"><td className="px-5 py-4 font-semibold text-slate-700">{vehicle.id}</td><td className="px-5 py-4 text-slate-600">{vehicle.type}</td><td className="px-5 py-4 text-slate-600">{vehicle.region}</td><td className="px-5 py-4"><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${vehicle.status === "Active" ? "bg-blue-50 text-blue-700" : vehicle.status === "Available" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>{vehicle.status}</span></td></tr>)}
+              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-400"><tr><th className="px-5 py-3 font-semibold">Vehicle</th><th className="px-5 py-3 font-semibold">Type</th><th className="px-5 py-3 font-semibold">Region</th><th className="px-5 py-3 font-semibold">Status</th></tr></thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {visibleFleet.map((vehicle) => <tr key={vehicle.id} className="hover:bg-slate-50 dark:hover:bg-slate-800"><td className="px-5 py-4 font-semibold text-slate-700 dark:text-slate-200">{vehicle.id}</td><td className="px-5 py-4 text-slate-600 dark:text-slate-300">{vehicle.type}</td><td className="px-5 py-4 text-slate-600 dark:text-slate-300">{vehicle.region}</td><td className="px-5 py-4"><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${vehicle.status === "Active" ? "bg-blue-50 text-blue-700" : vehicle.status === "Available" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>{vehicle.status}</span></td></tr>)}
                 {!visibleFleet.length && <tr><td colSpan="4" className="px-5 py-10 text-center text-slate-500">No vehicles match the selected filters.</td></tr>}
               </tbody>
             </table>

@@ -1,6 +1,7 @@
 
 import { Routes, Route } from "react-router-dom";
 import LoginForm from "./components/loginForm"
+import HomePage from "./components/homePage"
 import Dashboard from "./components/dashboard"
 import VehicleRegistry from "./components/vehicalRegistry"
 import AppLayout from "./components/appLayout"
@@ -13,7 +14,8 @@ import MaintenanceManagement from "./components/maintenanceManagement"
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<LoginForm />} />
+      <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<LoginForm />} />
       <Route path="/signup" element={<SignupForm />} />
       <Route element={<AppLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
