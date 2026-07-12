@@ -1,42 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { api, currency, formatDate, titleCase } from "../api";
 
-const vehicles = ["VH-101", "VH-102", "VH-103", "VH-104", "VH-105", "VH-109"];
-const maintenanceTypes = ["Preventive service", "Repair", "Inspection", "Tyre replacement", "Other"];
-const initialRecords = [{ id: 1, vehicle: "VH-103", type: "Repair", date: "2026-07-07", notes: "Brake system inspection and repair", status: "In Shop" }];
+const input = "mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+const empty = { vehicleId:"", serviceType:"Preventive service", description:"", cost:"", startedAt:"" };
 
-const readInShopVehicles = () => JSON.parse(localStorage.getItem("inShopVehicles") || "[]");
-const writeInShopVehicles = (ids) => localStorage.setItem("inShopVehicles", JSON.stringify(ids));
-
-const MaintenanceManagement = () => {
-  const [records, setRecords] = useState(initialRecords);
-  const [inShopVehicles, setInShopVehicles] = useState(readInShopVehicles);
-  const [form, setForm] = useState({ vehicle: "", type: "Preventive service", date: "", notes: "" });
-  const inputClass = "mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
-
-  const addRecord = (event) => {
-    event.preventDefault();
-    setRecords((current) => [{ id: Date.now(), ...form, status: "In Shop" }, ...current]);
-    const updated = [...new Set([...inShopVehicles, form.vehicle])];
-    setInShopVehicles(updated);
-    writeInShopVehicles(updated);
-    setForm({ vehicle: "", type: "Preventive service", date: "", notes: "" });
-  };
-
-  const completeRecord = (record) => {
-    setRecords((current) => current.map((item) => item.id === record.id ? { ...item, status: "Completed" } : item));
-    const hasAnotherOpenRecord = records.some((item) => item.id !== record.id && item.vehicle === record.vehicle && item.status === "In Shop");
-    if (!hasAnotherOpenRecord) {
-      const updated = inShopVehicles.filter((vehicle) => vehicle !== record.vehicle);
-      setInShopVehicles(updated);
-      writeInShopVehicles(updated);
-    }
-  };
-
-  return <main className="min-h-screen bg-slate-50 px-4 py-6 text-slate-800 sm:px-8 lg:px-12"><div className="mx-auto max-w-6xl">
-    <header className="mb-7"><p className="mb-1 text-sm font-semibold tracking-wide text-blue-600">FLEET OPERATIONS</p><h1 className="text-3xl font-bold tracking-tight text-slate-900">Maintenance</h1><p className="mt-1 text-sm text-slate-500">Log service work and keep unavailable vehicles out of trip assignment.</p></header>
-    <form onSubmit={addRecord} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"><h2 className="font-semibold text-slate-800">Add maintenance record</h2><p className="mt-1 text-sm text-slate-500">Saving a record marks the vehicle as In Shop and removes it from the available trip vehicle pool.</p><div className="mt-5 grid gap-4 md:grid-cols-2"><label className="text-sm font-medium text-slate-700">Vehicle *<select required value={form.vehicle} onChange={(event) => setForm({ ...form, vehicle: event.target.value })} className={inputClass}><option value="" disabled>Select vehicle</option>{vehicles.map((vehicle) => <option key={vehicle} value={vehicle} disabled={inShopVehicles.includes(vehicle)}>{vehicle}{inShopVehicles.includes(vehicle) ? " (In Shop)" : ""}</option>)}</select></label><label className="text-sm font-medium text-slate-700">Maintenance type *<select value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value })} className={inputClass}>{maintenanceTypes.map((type) => <option key={type}>{type}</option>)}</select></label><label className="text-sm font-medium text-slate-700">Date *<input required type="date" value={form.date} onChange={(event) => setForm({ ...form, date: event.target.value })} className={inputClass} /></label><label className="text-sm font-medium text-slate-700">Notes *<input required value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Describe the required work" className={inputClass} /></label></div><button type="submit" className="mt-5 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">Add to maintenance log</button></form>
-    <section className="mt-7 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div className="border-b border-slate-100 px-5 py-4"><h2 className="font-semibold text-slate-800">Maintenance log</h2><p className="mt-1 text-sm text-slate-500">Complete a record to release its vehicle back to trip assignment.</p></div><div className="overflow-x-auto"><table className="w-full min-w-[750px] text-left text-sm"><thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-3">Vehicle</th><th className="px-5 py-3">Type</th><th className="px-5 py-3">Date</th><th className="px-5 py-3">Notes</th><th className="px-5 py-3">Status</th><th className="px-5 py-3">Action</th></tr></thead><tbody className="divide-y divide-slate-100">{records.map((record) => <tr key={record.id}><td className="px-5 py-4 font-semibold text-slate-700">{record.vehicle}</td><td className="px-5 py-4 text-slate-600">{record.type}</td><td className="px-5 py-4 text-slate-600">{record.date}</td><td className="px-5 py-4 text-slate-600">{record.notes}</td><td className="px-5 py-4"><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${record.status === "In Shop" ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>{record.status}</span></td><td className="px-5 py-4">{record.status === "In Shop" ? <button type="button" onClick={() => completeRecord(record)} className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700">Mark completed</button> : <span className="text-xs text-slate-400">Released</span>}</td></tr>)}</tbody></table></div></section>
-  </div></main>;
-};
-
-export default MaintenanceManagement;
+export default function MaintenanceManagement() {
+  const [logs,setLogs]=useState([]),[vehicles,setVehicles]=useState([]),[form,setForm]=useState(empty),[error,setError]=useState(""),[notice,setNotice]=useState(""),[saving,setSaving]=useState(false);
+  const load=async()=>{try{const [m,v]=await Promise.all([api("/maintenance"),api("/vehicles")]);setLogs(m);setVehicles(v)}catch(e){setError(e.message)}};
+  useEffect(()=>{load()},[]);
+  const submit=async e=>{e.preventDefault();setSaving(true);setError("");try{await api("/maintenance",{method:"POST",body:JSON.stringify(form)});setForm(empty);setNotice("Maintenance record added; vehicle is now in shop.");load()}catch(err){setError(err.message)}finally{setSaving(false)}};
+  const complete=async id=>{try{await api(`/maintenance/${id}/complete`,{method:"POST"});setNotice("Maintenance record completed and vehicle availability updated.");load()}catch(e){setError(e.message)}};
+  return <main className="min-h-screen bg-slate-50 px-4 py-6 text-slate-800 sm:px-8 lg:px-12"><div className="mx-auto max-w-6xl"><header className="mb-7"><p className="text-sm font-semibold tracking-wide text-blue-600">FLEET OPERATIONS</p><h1 className="text-3xl font-bold">Maintenance</h1><p className="mt-1 text-sm text-slate-500">Service logs automatically update vehicle availability.</p></header>{error&&<p className="mb-4 rounded-lg bg-rose-50 p-3 text-sm text-rose-800">{error}</p>}{notice&&<p className="mb-4 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">{notice}</p>}
+    <form onSubmit={submit} className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-2"><h2 className="font-semibold md:col-span-2">Add maintenance record</h2><label className="text-sm font-medium">Available vehicle *<select required value={form.vehicleId} onChange={e=>setForm({...form,vehicleId:e.target.value})} className={input}><option value="">Select vehicle</option>{vehicles.filter(v=>v.status==="AVAILABLE").map(v=><option key={v.id} value={v.id}>{v.registrationNumber} · {v.name}</option>)}</select></label><label className="text-sm font-medium">Service type *<input required value={form.serviceType} onChange={e=>setForm({...form,serviceType:e.target.value})} className={input}/></label><label className="text-sm font-medium">Cost (₹) *<input required min="0" type="number" value={form.cost} onChange={e=>setForm({...form,cost:e.target.value})} className={input}/></label><label className="text-sm font-medium">Started date<input type="date" value={form.startedAt} onChange={e=>setForm({...form,startedAt:e.target.value})} className={input}/></label><label className="text-sm font-medium md:col-span-2">Description<input value={form.description} onChange={e=>setForm({...form,description:e.target.value})} className={input}/></label><button disabled={saving} className="w-fit rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50">{saving?"Saving…":"Add maintenance"}</button></form>
+    <section className="mt-7 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div className="border-b p-5"><h2 className="font-semibold">Maintenance log</h2></div><div className="overflow-x-auto"><table className="w-full min-w-[800px] text-left text-sm"><thead className="bg-slate-50 text-xs uppercase text-slate-500"><tr><th className="p-4">Vehicle</th><th className="p-4">Service</th><th className="p-4">Started</th><th className="p-4">Cost</th><th className="p-4">Status</th><th className="p-4">Action</th></tr></thead><tbody className="divide-y">{logs.map(log=><tr key={log.id}><td className="p-4 font-semibold">{log.vehicle.registrationNumber}</td><td className="p-4">{log.serviceType}<p className="text-slate-500">{log.description}</p></td><td className="p-4">{formatDate(log.startedAt)}</td><td className="p-4">{currency(log.cost)}</td><td className="p-4"><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold">{titleCase(log.status)}</span></td><td className="p-4">{log.status==="ACTIVE"&&<button onClick={()=>complete(log.id)} className="rounded bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white">Mark completed</button>}</td></tr>)}{!logs.length&&<tr><td colSpan="6" className="p-8 text-center text-slate-500">No maintenance records found.</td></tr>}</tbody></table></div></section></div></main>;
+}

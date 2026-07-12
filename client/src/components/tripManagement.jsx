@@ -1,58 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { api, titleCase } from "../api";
 
-const availableVehicles = ["VH-102 · Van", "VH-105 · Van", "VH-109 · Bus"];
-const availableDrivers = ["Arjun Sharma", "Meera Patel", "Ravi Kumar"];
-const initialTrips = [
-  { id: "TR-1042", source: "Mumbai", destination: "Pune", vehicle: "VH-102 · Van", driver: "Arjun Sharma", cargoWeight: 850, distance: 148, status: "Dispatched" },
-  { id: "TR-1041", source: "Delhi", destination: "Jaipur", vehicle: "VH-105 · Van", driver: "Meera Patel", cargoWeight: 620, distance: 281, status: "Draft" },
-  { id: "TR-1040", source: "Bengaluru", destination: "Chennai", vehicle: "VH-109 · Bus", driver: "Ravi Kumar", cargoWeight: 400, distance: 347, status: "Completed" },
-];
+const empty = { source: "", destination: "", vehicleId: "", driverId: "", cargoWeightKg: "", plannedDistanceKm: "" };
+const input = "mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
-const initialForm = { source: "", destination: "", vehicle: "", driver: "", cargoWeight: "", distance: "" };
-
-const TripManagement = () => {
-  const [trips, setTrips] = useState(initialTrips);
-  const [form, setForm] = useState(initialForm);
-
-  const handleCreate = (event) => {
-    event.preventDefault();
-    setTrips((currentTrips) => [{ id: `TR-${1043 + currentTrips.length}`, ...form, cargoWeight: Number(form.cargoWeight), distance: Number(form.distance), status: "Draft" }, ...currentTrips]);
-    setForm(initialForm);
-  };
-
-  const updateStatus = (id, status) => setTrips((currentTrips) => currentTrips.map((trip) => trip.id === id ? { ...trip, status } : trip));
-  const inputClass = "mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
-  const statusStyle = { Draft: "bg-slate-100 text-slate-700", Dispatched: "bg-blue-50 text-blue-700", Completed: "bg-emerald-50 text-emerald-700", Cancelled: "bg-rose-50 text-rose-700" };
-  const inShopVehicles = JSON.parse(localStorage.getItem("inShopVehicles") || "[]");
-  const assignableVehicles = availableVehicles.filter((vehicle) => !inShopVehicles.includes(vehicle.split(" ")[0]));
-
-  return (
-    <main className="min-h-screen bg-slate-50 px-4 py-6 text-slate-800 sm:px-8 lg:px-12">
-      <div className="mx-auto max-w-7xl">
-        <header className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div><p className="mb-1 text-sm font-semibold tracking-wide text-blue-600">FLEET OPERATIONS</p><h1 className="text-3xl font-bold tracking-tight text-slate-900">Trip Management</h1><p className="mt-1 text-sm text-slate-500">Plan, dispatch, and track your fleet trips.</p></div>
-        </header>
-
-        <form onSubmit={handleCreate} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-          <div><h2 className="font-semibold text-slate-800">Create trip</h2><p className="mt-1 text-sm text-slate-500">New trips are saved with Draft status.</p></div>
-          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            <label className="text-sm font-medium text-slate-700">Source *<input required value={form.source} onChange={(event) => setForm({ ...form, source: event.target.value })} placeholder="e.g. Mumbai" className={inputClass} /></label>
-            <label className="text-sm font-medium text-slate-700">Destination *<input required value={form.destination} onChange={(event) => setForm({ ...form, destination: event.target.value })} placeholder="e.g. Pune" className={inputClass} /></label>
-            <label className="text-sm font-medium text-slate-700">Available vehicle *<select required value={form.vehicle} onChange={(event) => setForm({ ...form, vehicle: event.target.value })} className={inputClass}><option value="" disabled>Select vehicle</option>{assignableVehicles.map((vehicle) => <option key={vehicle}>{vehicle}</option>)}</select></label>
-            <label className="text-sm font-medium text-slate-700">Available driver *<select required value={form.driver} onChange={(event) => setForm({ ...form, driver: event.target.value })} className={inputClass}><option value="" disabled>Select driver</option>{availableDrivers.map((driver) => <option key={driver}>{driver}</option>)}</select></label>
-            <label className="text-sm font-medium text-slate-700">Cargo weight (kg) *<input required type="number" min="1" value={form.cargoWeight} onChange={(event) => setForm({ ...form, cargoWeight: event.target.value })} placeholder="e.g. 850" className={inputClass} /></label>
-            <label className="text-sm font-medium text-slate-700">Planned distance (km) *<input required type="number" min="1" value={form.distance} onChange={(event) => setForm({ ...form, distance: event.target.value })} placeholder="e.g. 148" className={inputClass} /></label>
-          </div>
-          <button type="submit" className="mt-5 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">Create draft trip</button>
-        </form>
-
-        <section className="mt-7 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-100 px-5 py-4"><h2 className="font-semibold text-slate-800">Trip lifecycle</h2><p className="mt-1 text-sm text-slate-500">Draft → Dispatched → Completed, or cancel a trip before completion.</p></div>
-          <div className="overflow-x-auto"><table className="w-full min-w-[1050px] text-left text-sm"><thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-3 font-semibold">Trip</th><th className="px-5 py-3 font-semibold">Route</th><th className="px-5 py-3 font-semibold">Vehicle</th><th className="px-5 py-3 font-semibold">Driver</th><th className="px-5 py-3 font-semibold">Cargo</th><th className="px-5 py-3 font-semibold">Distance</th><th className="px-5 py-3 font-semibold">Status</th><th className="px-5 py-3 font-semibold">Action</th></tr></thead><tbody className="divide-y divide-slate-100">{trips.map((trip) => <tr key={trip.id} className="hover:bg-slate-50"><td className="px-5 py-4 font-semibold text-slate-700">{trip.id}</td><td className="px-5 py-4 text-slate-600">{trip.source} → {trip.destination}</td><td className="px-5 py-4 text-slate-600">{trip.vehicle}</td><td className="px-5 py-4 text-slate-600">{trip.driver}</td><td className="px-5 py-4 text-slate-600">{trip.cargoWeight} kg</td><td className="px-5 py-4 text-slate-600">{trip.distance} km</td><td className="px-5 py-4"><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusStyle[trip.status]}`}>{trip.status}</span></td><td className="px-5 py-4">{trip.status === "Draft" && <div className="flex gap-2"><button type="button" onClick={() => updateStatus(trip.id, "Dispatched")} className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700">Dispatch</button><button type="button" onClick={() => updateStatus(trip.id, "Cancelled")} className="rounded-md px-2 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50">Cancel</button></div>}{trip.status === "Dispatched" && <div className="flex gap-2"><button type="button" onClick={() => updateStatus(trip.id, "Completed")} className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700">Complete</button><button type="button" onClick={() => updateStatus(trip.id, "Cancelled")} className="rounded-md px-2 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50">Cancel</button></div>}{(trip.status === "Completed" || trip.status === "Cancelled") && <span className="text-xs text-slate-400">No actions available</span>}</td></tr>)}</tbody></table></div>
-        </section>
-      </div>
-    </main>
-  );
-};
-
-export default TripManagement;
+export default function TripManagement() {
+  const [trips, setTrips] = useState([]), [vehicles, setVehicles] = useState([]), [drivers, setDrivers] = useState([]), [form, setForm] = useState(empty), [error, setError] = useState(""), [notice, setNotice] = useState(""), [saving, setSaving] = useState(false);
+  const load = async () => { try { const [t,v,d] = await Promise.all([api("/trips"), api("/vehicles"), api("/drivers")]); setTrips(t); setVehicles(v); setDrivers(d); } catch (e) { setError(e.message); } };
+  useEffect(() => { load(); }, []);
+  const submit = async e => { e.preventDefault(); setSaving(true); setError(""); try { await api("/trips", { method:"POST", body:JSON.stringify(form) }); setForm(empty); setNotice("Draft trip created."); load(); } catch (err) { setError(err.message); } finally { setSaving(false); } };
+  const action = async (trip, endpoint) => { setError(""); try { let body; if (endpoint === "complete") { const endOdometer = window.prompt("End odometer (km):", trip.vehicle.odometer); if (endOdometer === null) return; body = JSON.stringify({ endOdometer, actualDistanceKm: window.prompt("Actual distance (km), optional:") || undefined, fuelConsumedLiters: window.prompt("Fuel consumed (L), optional:") || undefined }); } await api(`/trips/${trip.id}/${endpoint}`, { method:"POST", body }); setNotice(`Trip ${endpoint}d successfully.`); load(); } catch (err) { setError(err.message); } };
+  const availableVehicles = vehicles.filter(v => v.status === "AVAILABLE"), availableDrivers = drivers.filter(d => d.status === "AVAILABLE");
+  return <main className="min-h-screen bg-slate-50 px-4 py-6 text-slate-800 sm:px-8 lg:px-12"><div className="mx-auto max-w-7xl"><header className="mb-7"><p className="text-sm font-semibold tracking-wide text-blue-600">FLEET OPERATIONS</p><h1 className="text-3xl font-bold">Trip Management</h1><p className="mt-1 text-sm text-slate-500">Plan and run trips using current vehicle and driver availability.</p></header>{error && <p className="mb-4 rounded-lg bg-rose-50 p-3 text-sm text-rose-800">{error}</p>}{notice && <p className="mb-4 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">{notice}</p>}
+    <form onSubmit={submit} className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-2 xl:grid-cols-3"><h2 className="font-semibold md:col-span-2 xl:col-span-3">Create draft trip</h2>{[["source","Source"],["destination","Destination"]].map(([name,label]) => <label key={name} className="text-sm font-medium">{label} *<input required value={form[name]} onChange={e=>setForm({...form,[name]:e.target.value})} className={input}/></label>)}<label className="text-sm font-medium">Available vehicle *<select required value={form.vehicleId} onChange={e=>setForm({...form,vehicleId:e.target.value})} className={input}><option value="">Select vehicle</option>{availableVehicles.map(v=><option key={v.id} value={v.id}>{v.registrationNumber} · {v.name}</option>)}</select></label><label className="text-sm font-medium">Available driver *<select required value={form.driverId} onChange={e=>setForm({...form,driverId:e.target.value})} className={input}><option value="">Select driver</option>{availableDrivers.map(d=><option key={d.id} value={d.id}>{d.name}</option>)}</select></label><label className="text-sm font-medium">Cargo weight (kg) *<input required min="1" type="number" value={form.cargoWeightKg} onChange={e=>setForm({...form,cargoWeightKg:e.target.value})} className={input}/></label><label className="text-sm font-medium">Planned distance (km) *<input required min="1" type="number" value={form.plannedDistanceKm} onChange={e=>setForm({...form,plannedDistanceKm:e.target.value})} className={input}/></label><div className="flex items-end"><button disabled={saving} className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50">{saving?"Saving…":"Create trip"}</button></div></form>
+    <section className="mt-7 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div className="border-b p-5"><h2 className="font-semibold">Trip lifecycle</h2></div><div className="overflow-x-auto"><table className="w-full min-w-[1000px] text-left text-sm"><thead className="bg-slate-50 text-xs uppercase text-slate-500"><tr><th className="p-4">Route</th><th className="p-4">Vehicle</th><th className="p-4">Driver</th><th className="p-4">Load / distance</th><th className="p-4">Status</th><th className="p-4">Actions</th></tr></thead><tbody className="divide-y">{trips.map(t=><tr key={t.id}><td className="p-4 font-semibold">{t.source} → {t.destination}</td><td className="p-4">{t.vehicle.registrationNumber}</td><td className="p-4">{t.driver.name}</td><td className="p-4">{t.cargoWeightKg} kg / {t.plannedDistanceKm} km</td><td className="p-4"><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold">{titleCase(t.status)}</span></td><td className="p-4 space-x-2">{t.status === "DRAFT" && <><button onClick={()=>action(t,"dispatch")} className="rounded bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white">Dispatch</button><button onClick={()=>action(t,"cancel")} className="text-xs font-semibold text-rose-600">Cancel</button></>}{t.status === "DISPATCHED" && <><button onClick={()=>action(t,"complete")} className="rounded bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white">Complete</button><button onClick={()=>action(t,"cancel")} className="text-xs font-semibold text-rose-600">Cancel</button></>}</td></tr>)}{!trips.length && <tr><td colSpan="6" className="p-8 text-center text-slate-500">No trips found.</td></tr>}</tbody></table></div></section></div></main>;
+}
