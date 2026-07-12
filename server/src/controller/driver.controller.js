@@ -1,3 +1,4 @@
+import prisma from "../config/db";
 import asyncHandler from "../utils/asyncHandler";
 import apiError from "../utils/apiError";
 import apiResponse from "../utils/apiResponse";
@@ -10,12 +11,13 @@ const newDriver = asyncHandler(async (req, res) => {
     licenseCategory,
     licenseExpiryDate,
   } = req.body;
+
   if (
     !name ||
-    contactNumber ||
-    licenseCategory ||
-    licenseNumber ||
-    licenseExpiryDate
+    !contactNumber ||
+    !licenseCategory ||
+    !licenseNumber ||
+    !licenseExpiryDate
   ) {
     throw new apiError(404, "All these fields are required");
   }
@@ -23,7 +25,6 @@ const newDriver = asyncHandler(async (req, res) => {
   const existingDriver = await prisma.driver.findUnique({
     where: { licenseNumber },
   });
-  console.log(editDriver);
 
   if (existingDriver) {
     throw new apiError(404, "License already exists");
@@ -52,7 +53,7 @@ const editDriver = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   if (!name || !contactNumber) {
-    throw new apiError(400, "All fields are requires");
+    throw new apiError(400, "All fields are required");
   }
 
   const driver = await prisma.driver.findUnique({
@@ -86,18 +87,8 @@ const editDriver = asyncHandler(async (req, res) => {
     );
 });
 
-const deletDriver = asyncHandler(async (req, res) => {
+const deleteDriver = asyncHandler(async (req, res) => {
   const { id } = req.params;
-
-  const driver = await prisma.driver.findUnique({
-    where: {
-      id,
-    },
-  });
-
-  if (!driver) {
-    throw new apiError(404, "Driver doesn't exist");
-  }
 
   const deletedDriver = await prisma.driver.delete({
     where: {
@@ -115,3 +106,5 @@ const deletDriver = asyncHandler(async (req, res) => {
       ),
     );
 });
+
+export { newDriver, editDriver, deleteDriver };
