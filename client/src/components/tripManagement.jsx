@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 
 const availableVehicles = ["VH-102 · Van", "VH-105 · Van", "VH-109 · Bus"];
 const availableDrivers = ["Arjun Sharma", "Meera Patel", "Ravi Kumar"];
@@ -32,7 +31,6 @@ const TripManagement = () => {
       <div className="mx-auto max-w-7xl">
         <header className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div><p className="mb-1 text-sm font-semibold tracking-wide text-blue-600">FLEET OPERATIONS</p><h1 className="text-3xl font-bold tracking-tight text-slate-900">Trip Management</h1><p className="mt-1 text-sm text-slate-500">Plan, dispatch, and track your fleet trips.</p></div>
-          <Link to="/dashboard" className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">Back to dashboard</Link>
         </header>
 
         <form onSubmit={handleCreate} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">

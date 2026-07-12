@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { Link } from "react-router-dom";
 
 const vehicleReport = [
   { vehicle: "VH-101", distance: 1840, fuel: 210, fuelCost: 19950, maintenance: 2800, revenue: 58500, acquisitionCost: 1800000, utilization: 88 },
@@ -63,7 +62,6 @@ const ReportsAnalytics = () => {
           </div>
           <div className="flex flex-wrap gap-3">
             <button type="button" onClick={exportCsv} className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">Export CSV</button>
-            <Link to="/dashboard" className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">Back to dashboard</Link>
           </div>
         </header>
 
