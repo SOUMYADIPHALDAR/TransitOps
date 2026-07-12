@@ -55,7 +55,7 @@ const editDriver = asyncHandler(async (req, res) => {
     throw new apiError(400, "All fields are requires");
   }
 
-  const driver = await prisma.driver.findFirst({
+  const driver = await prisma.driver.findUnique({
     where: {
       id,
     },
@@ -86,4 +86,24 @@ const editDriver = asyncHandler(async (req, res) => {
     );
 });
 
-const deletDriver = asyncHandler(async)
+const deletDriver = asyncHandler(async (req, res) => {
+  const { id } = req.params
+
+  const driver = await prisma.driver.findUnique({
+    where: {
+      id,
+    }
+  });
+
+  if(!driver) {
+    throw new apiError(404, "Unauthorized access or driver doesn't exist")
+  }
+
+  const delteDriver = await prisma.driver.delete({
+    where: {
+      id
+    }
+  });
+
+  return res.status(200).json(new apiResponse(200, deletDriver, "Driver's information has been deleted successfully"))
+});
