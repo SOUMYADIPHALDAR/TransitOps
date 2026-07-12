@@ -8,18 +8,17 @@ import SignupForm from "./components/signupForm"
 import DriverManagementForm from "./components/driverManagementForm"
 import FuelExpenseManagement from "./components/fuelExpenseManagement"
 import ReportsAnalytics from "./components/reportsAnalytics"
+import TripManagement from "./components/tripManagement"
 function App() {
   return (
     <Routes>
       <Route path="/" element={<LoginForm />} />
       <Route path="/signup" element={<SignupForm />} />
       <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/vehicle-registry" element={<VehicleRegistry />} />
-      <Route path="/driver-management" element={<ManagementPage title="Driver Management" />} />
-      <Route path="/trip-management" element={<ManagementPage title="Trip Management" />} />
-      <Route path="/maintenance" element={<ManagementPage title="Maintenance" />} />
-      <Route path="/fuel-expenses" element={<ManagementPage title="Fuel & Expense Management" />} />
-      <Route path="/reports-analytics" element={<ManagementPage title="Reports & Analytics" />} />
+      <Route path="/drivers" element={<DriverManagementForm />} />
+      <Route path="/expenses" element={<FuelExpenseManagement />} />
+      <Route path="/reports" element={<ReportsAnalytics />} />
+      <Route path="/trips" element={<TripManagement />} />
     </Routes>
   );
 }
